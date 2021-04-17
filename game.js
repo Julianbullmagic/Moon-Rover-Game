@@ -11,7 +11,7 @@ class Game{
 			GAMEOVER: Symbol("gameover")
 		});
 		this.mode = this.modes.NONE;
-		
+
 		this.container;
 		this.stats;
 		this.controls;
@@ -26,41 +26,41 @@ class Game{
 		this.debugPhysics = true;
 		this.fixedTimeStep = 1.0/60.0;
 		this.js = { forward:0, turn:0 };
-		
-		this.messages = {  
-			text:[ 
+
+		this.messages = {
+			text:[
 			"Welcome to Skyblade.",
 			],
 			index:0
 		}
-		
+
 		if (localStorage && !this.debug){
 		}
-		
+
 		this.container = document.createElement( 'div' );
 		this.container.style.height = '100%';
 		document.body.appendChild( this.container );
-		
+
 		const sfxExt = SFX.supportsAudioType('mp3') ? 'mp3' : 'ogg';
 		const game = this;
-		
+
 		const options = {
 			assets:[
-                "../assets/rc_time_trial.fbx",
-				"../assets/images/logo.png",
-				"../assets/images/nx.jpg",
-				"../assets/images/px.jpg",
-				"../assets/images/ny.jpg",
-				"../assets/images/py.jpg",
-				"../assets/images/nz.jpg",
-				"../assets/images/pz.jpg"
+                "/assets/rc_time_trial.fbx",
+				"/assets/images/logo.png",
+				"/assets/images/nx.jpg",
+				"/assets/images/px.jpg",
+				"/assets/images/ny.jpg",
+				"/assets/images/py.jpg",
+				"/assets/images/nz.jpg",
+				"/assets/images/pz.jpg"
 			],
 			oncomplete: function(){
 				game.init();
 				game.animate();
 			}
 		}
-		
+
 		this.mode = this.modes.PRELOAD;
 		this.motion = { forward:0, turn:0 };
 		this.clock = new THREE.Clock();
@@ -72,17 +72,17 @@ class Game{
 		}else{
 			document.getElementById('reset-btn').onclick = function(){ game.resetCar(); };
 		}
-		
+
 		const preloader = new Preloader(options);
-		
+
 		window.onError = function(error){
 			console.error(JSON.stringify(error));
 		}
 	}
-	
+
 	makeWireframe(mode=true, model=this.assets){
 		const game = this;
-		
+
 		if (model.isMesh){
 			if (Array.isArray(model.material)){
 				model.material.forEach(function(material){ material.wireframe = mode; });
@@ -90,7 +90,7 @@ class Game{
 				model.material.wireframe = mode;
 			}
 		}
-		
+
 		model.children.forEach(function(child){
 			if (child.children.length>0){
 				game.makeWireframe(mode, child);
@@ -103,7 +103,7 @@ class Game{
 			}
 		});
 	}
-	
+
 	resetCar(){
 		let checkpoint;
 		let distance = 10000000000;
@@ -122,7 +122,7 @@ class Game{
 		this.vehicle.chassisBody.velocity.set(0,0,0);
 		this.vehicle.chassisBody.angularVelocity.set(0,0,0);
 	}
-	
+
 	initSfx(){
 		this.sfx = {};
 		this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
@@ -133,7 +133,7 @@ class Game{
 			volume: 0.3
 		});
 	}
-	
+
 	init() {
 		this.mode = this.modes.INITIALISING;
 
@@ -143,7 +143,7 @@ class Game{
 		this.scene = new THREE.Scene();
 		this.scene.background = new THREE.Color( 0xa0a0a0 );
 		//this.scene.fog = new THREE.Fog( 0xa0a0a0, 20, 100 );
-		
+
         // LIGHTS
         const ambient = new THREE.AmbientLight( 0xaaaaaa );
         this.scene.add( ambient );
@@ -163,28 +163,28 @@ class Game{
         light.shadow.bias = 0.0039;
         light.shadow.mapSize.width = 1024;
         light.shadow.mapSize.height = 1024;
-		
+
 		this.sun = light;
 		this.scene.add(light);
-		
+
 		this.renderer = new THREE.WebGLRenderer( { antialias: true } );
 		this.renderer.setPixelRatio( window.devicePixelRatio );
 		this.renderer.setSize( window.innerWidth, window.innerHeight );
 		this.renderer.shadowMap.enabled = true;
 		this.container.appendChild( this.renderer.domElement );
-		
+
 		if ('ontouchstart' in window){
 			//this.renderer.domElement.addEventListener('touchstart', function(evt){ game.tap(evt); });
 		}else{
 			//this.renderer.domElement.addEventListener('mousedown', function(evt){ game.tap(evt); });
 		}
-		
+
 		//this.controls = new THREE.OrbitControls( this.camera, this.renderer.domElement );
 		//this.controls.enableZoom = true;
   		//this.controls.enablePan = true;
-		
+
 		this.loadAssets();
-		
+
 		window.addEventListener( 'resize', function(){ game.onWindowResize(); }, false );
 
 		// stats
@@ -192,24 +192,24 @@ class Game{
 			this.stats = new Stats();
 			this.container.appendChild( this.stats.dom );
 		}
-		
+
 		this.joystick = new JoyStick({
 			game:this,
 			onMove:this.joystickCallback
 		})
 	}
-	
+
 	loadAssets(){
 		const game = this;
 		const loader = new THREE.FBXLoader();
-		
-		loader.load( '../assets/rc_time_trial.fbx', 
+
+		loader.load( '/assets/rc_time_trial.fbx',
 		function ( object ){
 			let material, map, index, maps;
 			const euler = new THREE.Euler();
 			game.proxies = {};
 			game.checkpoints = [];
-				
+
 			object.traverse( function ( child ) {
 				let receiveShadow = true;
 				if ( child.isMesh ) {
@@ -223,7 +223,7 @@ class Game{
 						child.castShadow = true;
 						receiveShadow = false;
 					}else if (child.name.includes("Bonnet")){
-						game.car.bonnet.push(child); 
+						game.car.bonnet.push(child);
 						child.visible = false;
 						child.castShadow = true;
 						receiveShadow = false;
@@ -261,7 +261,7 @@ class Game{
 					}else if (child.name=="CarShadow"){
 						child.visible = false;
 					}
-					
+
 					child.receiveShadow = receiveShadow;
 				}else{
 					if (child.name.includes("Checkpoint")){
@@ -272,12 +272,12 @@ class Game{
 			});
 
 			game.customiseCar(0,0,0,0,0);
-			
+
 			game.assets = object;
 			game.scene.add( object );
-			
+
 			const tloader = new THREE.CubeTextureLoader();
-			tloader.setPath( '../assets/images/' );
+			tloader.setPath( '/assets/images/' );
 
 			var textureCube = tloader.load( [
 				'px.jpg', 'nx.jpg',
@@ -286,18 +286,18 @@ class Game{
 			] );
 
 			game.scene.background = textureCube;
-			
+
 			game.initPhysics();
 		},
-		null, 
+		null,
 		function(error){
 			console.error(error);
-		}			
+		}
 	 );
 	}
-	
+
 	reset(){
-		
+
 	}
 
 	customiseCar( bonnet=0, engine=0, seat=0, wheel=0, xtra=0){
@@ -312,7 +312,7 @@ class Game{
 		this.car.selected.wheel = this.car.wheel[wheel];
 		this.car.selected.xtra = this.car.xtra[xtra];
 	}
-	
+
 	startMessages(){
 		this.sfx.click.play();
 		if (this.messages.index<(this.messages.text.length-1)){
@@ -322,19 +322,19 @@ class Game{
 		}
 		this.messages.index++;
 	}
-	
+
 	updatePhysics(){
 		if (this.physics.debugRenderer!==undefined) this.physics.debugRenderer.scene.visible = true;
 	}
-	
+
 	initPhysics(){
 		this.physics = {};
-		
+
 		const game = this;
         const mass = 150;
 		const world = new CANNON.World();
 		this.world = world;
-		
+
 		world.broadphase = new CANNON.SAPBroadphase(world);
 		world.gravity.set(0, -10, 0);
 		world.defaultContactMaterial.friction = 0;
@@ -358,7 +358,7 @@ class Game{
 		chassisBody.position.copy(pos);
 		chassisBody.angularVelocity.set(0, 0, 0);
 		chassisBody.threemesh = this.car.chassis;
-		
+
 		this.followCam = new THREE.Object3D();
 		this.followCam.position.copy(this.camera.position);
 		this.scene.add(this.followCam);
@@ -412,7 +412,7 @@ class Game{
 			this.scene.add(wheel);
 			wheels.push(wheel);
 		}
-		
+
 		vehicle.wheelInfos.forEach( function(wheel){
 			const cylinderShape = new CANNON.Cylinder(wheel.radius, wheel.radius, wheel.radius / 2, 20);
 			const wheelBody = new CANNON.Body({ mass: 1 });
@@ -431,14 +431,14 @@ class Game{
                 const t = wheel.worldTransform;
                 wheelBodies[index].threemesh.position.copy(t.position);
                 wheelBodies[index].threemesh.quaternion.copy(t.quaternion);
-				index++; 
+				index++;
 			});
 		});
-		
+
 		this.vehicle = vehicle;
-		
+
 		this.createColliders();
-		
+
 		if (this.debugPhysics) this.debugRenderer = new THREE.CannonDebugRenderer(this.scene, this.world);
 	}
 
@@ -459,21 +459,21 @@ class Game{
 			}
 		})
 	}
-	
+
 	joystickCallback( forward, turn ){
 		this.js.forward = -forward;
 		this.js.turn = -turn;
 	}
-		
+
     updateDrive(forward=this.js.forward, turn=this.js.turn){
-		
+
 		const maxSteerVal = 0.6;
         const maxForce = 500;
         const brakeForce = 10;
-		 
+
 		const force = maxForce * forward;
 		const steer = maxSteerVal * turn;
-		 
+
 		if (forward!=0){
 			this.vehicle.setBrake(0, 0);
 			this.vehicle.setBrake(0, 1);
@@ -488,11 +488,11 @@ class Game{
 			this.vehicle.setBrake(brakeForce, 2);
 			this.vehicle.setBrake(brakeForce, 3);
 		}
-		
+
 		this.vehicle.setSteeringValue(steer, 2);
 		this.vehicle.setSteeringValue(steer, 3);
 	}
-	
+
 	onWindowResize() {
 		this.camera.aspect = window.innerWidth / window.innerHeight;
 		this.camera.updateProjectionMatrix();
@@ -513,42 +513,42 @@ class Game{
             if (this.camera.position.y < 1) this.camera.position.y = 1;
 			this.camera.lookAt(pos);
 		}
-		
+
 		if (this.sun!=undefined){
 			this.sun.position.copy( this.camera.position );
 			this.sun.position.y += 10;
 		}
 	}
-	
+
 	getAssetsByName(name){
 		if (this.assets==undefined) return;
-		
+
 		const names = name.split('.');
 		let assets = this.assets;
-		
+
 		names.forEach(function(name){
 			if (assets!==undefined){
 				assets = assets.children.find(function(child){ return child.name==name; });
 			}
 		});
-		
+
 		return assets;
 	}
-								   
+
 	animate() {
 		const game = this;
-		
+
 		requestAnimationFrame( function(){ game.animate(); } );
-		
+
 		const now = Date.now();
 		if (this.lastTime===undefined) this.lastTime = now;
 		const dt = (Date.now() - this.lastTime)/1000.0;
 		this.FPSFactor = dt;
 		this.lastTime = now;
-		
+
 		if (this.world!==undefined){
 			this.updateDrive();
-			
+
 			this.world.step(this.fixedTimeStep, dt, 10);
 
 			this.world.bodies.forEach( function(body){
@@ -562,14 +562,14 @@ class Game{
 					}
 				}
 			});
-			
-			
+
+
 		}
-		
+
 		this.updateCamera();
-		
+
 		if (this.debugRenderer!==undefined) this.debugRenderer.update();
-		
+
 		this.renderer.render( this.scene, this.camera );
 
 		if (this.stats!=undefined) this.stats.update();
@@ -588,7 +588,7 @@ class SFX{
 		this.fadeDuration = (options.fadeDuration==undefined) ? 0.5 : options.fadeDuration;
 		this.autoplay = (options.autoplay==undefined) ? false : options.autoplay;
 		this.buffer = null;
-		
+
 		let codec;
 		for(let prop in options.src){
 			if (SFX.supportsAudioType(prop)){
@@ -596,7 +596,7 @@ class SFX{
 				break;
 			}
 		}
-		
+
 		if (codec!=undefined){
 			this.url = options.src[codec];
 			this.load(this.url);
@@ -604,7 +604,7 @@ class SFX{
 			console.warn("Browser does not support any of the supplied audio files");
 		}
 	}
-	
+
 	static supportsAudioType(type) {
 		let audio;
 
@@ -620,7 +620,7 @@ class SFX{
 
 		return audio.canPlayType(formats[type] || type);
 	}
-	
+
 	load(url) {
   		// Load buffer asynchronously
   		const request = new XMLHttpRequest();
@@ -653,14 +653,14 @@ class SFX{
 
   		request.send();
 	}
-	
+
 	set loop(value){
 		this._loop = value;
 		if (this.source!=undefined) this.source.loop = value;
 	}
-	
+
 	play(){
-		if (this.buffer==null) return; 
+		if (this.buffer==null) return;
 		if (this.source!=undefined) this.source.stop();
 		this.source = this.context.createBufferSource();
 		this.source.loop = this._loop;
@@ -668,17 +668,17 @@ class SFX{
 	  	this.source.connect(this.gainNode);
 		this.source.start(0);
 	}
-	
+
 	set volume(value){
 		this._volume = value;
 		this.gainNode.gain.setTargetAtTime(value, this.context.currentTime + this.fadeDuration, 0);
 	}
-	
+
 	pause(){
 		if (this.source==undefined) return;
 		this.source.stop();
 	}
-	
+
 	stop(){
 		if (this.source==undefined) return;
 		this.source.stop();
@@ -711,13 +711,13 @@ class JoyStick{
 			}
 		}
 	}
-	
+
 	getMousePosition(evt){
 		let clientX = evt.targetTouches ? evt.targetTouches[0].pageX : evt.clientX;
 		let clientY = evt.targetTouches ? evt.targetTouches[0].pageY : evt.clientY;
 		return { x:clientX, y:clientY };
 	}
-	
+
 	tap(evt){
 		evt = evt || window.event;
 		// get the mouse cursor position at startup:
@@ -731,7 +731,7 @@ class JoyStick{
 			document.onmouseup = function(evt){ evt.preventDefault(); joystick.up(evt); };
 		}
 	}
-	
+
 	move(evt){
 		evt = evt || window.event;
 		const mouse = this.getMousePosition(evt);
@@ -739,7 +739,7 @@ class JoyStick{
 		let left = mouse.x - this.offset.x;
 		let top = mouse.y - this.offset.y;
 		//this.offset = mouse;
-		
+
 		const sqMag = left*left + top*top;
 		if (sqMag>this.maxRadiusSquared){
 			//Only use sqrt if essential
@@ -752,13 +752,13 @@ class JoyStick{
 		// set the element's new position:
 		this.domElement.style.top = `${top + this.domElement.clientHeight/2}px`;
 		this.domElement.style.left = `${left + this.domElement.clientWidth/2}px`;
-		
+
 		const forward = -(top - this.origin.top + this.domElement.clientHeight/2)/this.maxRadius;
 		const turn = (left - this.origin.left + this.domElement.clientWidth/2)/this.maxRadius;
-		
+
 		if (this.onMove!=undefined) this.onMove.call(this.game, forward, turn);
 	}
-	
+
 	up(evt){
 		if ('ontouchstart' in window){
 			document.ontouchmove = null;
@@ -769,7 +769,7 @@ class JoyStick{
 		}
 		this.domElement.style.top = `${this.origin.top}px`;
 		this.domElement.style.left = `${this.origin.left}px`;
-		
+
 		this.onMove.call(this.game, 0, 0);
 	}
 }
@@ -782,7 +782,7 @@ class Preloader{
 			this.load(asset);
 		}
 		this.container = options.container;
-		
+
 		if (options.onprogress==undefined){
 			this.onprogress = onprogress;
 			this.domElement = document.createElement("div");
@@ -820,16 +820,16 @@ class Preloader{
 		}else{
 			this.onprogress = options.onprogress;
 		}
-		
+
 		this.oncomplete = options.oncomplete;
-		
+
 		const loader = this;
 		function onprogress(delta){
 			const progress = delta*100;
 			loader.progressBar.style.width = `${progress}%`;
 		}
 	}
-	
+
 	checkCompleted(){
 		for(let prop in this.assets){
 			const asset = this.assets[prop];
@@ -837,29 +837,29 @@ class Preloader{
 		}
 		return true;
 	}
-	
+
 	get progress(){
 		let total = 0;
 		let loaded = 0;
-		
+
 		for(let prop in this.assets){
 			const asset = this.assets[prop];
 			if (asset.total == undefined){
 				loaded = 0;
 				break;
 			}
-			loaded += asset.loaded; 
+			loaded += asset.loaded;
 			total += asset.total;
 		}
-		
+
 		return loaded/total;
 	}
-	
+
 	load(url){
 		const loader = this;
 		var xobj = new XMLHttpRequest();
 		xobj.overrideMimeType("application/json");
-		xobj.open('GET', url, true); 
+		xobj.open('GET', url, true);
 		xobj.onreadystatechange = function () {
 			  if (xobj.readyState == 4 && xobj.status == "200") {
 				  loader.assets[url].complete = true;
@@ -871,7 +871,7 @@ class Preloader{
 							  document.body.removeChild(loader.domElement);
 						  }
 					  }
-					  loader.oncomplete();	
+					  loader.oncomplete();
 				  }
 			  }
 		};
